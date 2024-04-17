@@ -21,7 +21,7 @@ from drf_yasg import openapi
 from django.conf import settings
 
 from account.pagination import CustomPagination
-
+from denounce.models import Denounce
 
 @swagger_auto_schema(
     method="POST",
@@ -151,5 +151,34 @@ def set_great_comment(request):
         object.save()
         return Response(True, status=status.HTTP_202_ACCEPTED)
     except:
+        return Response(False, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@swagger_auto_schema(
+    method="POST",
+    operation_description="举报文章",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=["article"],
+        properties={
+            "article": openapi.Schema(type=openapi.TYPE_INTEGER, description="文章id"),
+        },
+    ),
+)
+@permission_classes([IsAuthenticated])
+@api_view(["POST"])
+def denounce(request):
+    try:
+        articleid = request.data.get("article", "")
+        user = request.user
+        article = Article.objects.filter(id=articleid).first()
+        if not article:
+            raise
+
+        d = Denounce.objects.create(article=article, user=user)
+        return Response(True, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        print(e)
         return Response(False, status=status.HTTP_400_BAD_REQUEST)
 

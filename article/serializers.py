@@ -7,16 +7,20 @@ from taggit.serializers import (TagListSerializerField,
 from account.serializers import UserReaderializer
 
 from .models import Article
-
+from denounce.models import Denounce
 
 class ArticleReadSerializer(serializers.ModelSerializer):
     author = UserReaderializer()
     tag_list = TagListSerializerField(source='tags', required=False)
+    denounce = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
-        fields = ('id', 'author', 'title', 'content', 'created', 'updated', 'expired', 'tag_list', 'views')
-        read_only_fields = ('id', 'author', 'created', 'updated', 'views')
+        fields = ('id', 'author', 'title', 'content', 'created', 'updated', 'expired', 'tag_list', 'views', 'denounce')
+        read_only_fields = ('id', 'author', 'created', 'updated', 'views', 'denounce')
+
+    def get_denounce(self, obj):
+        return Denounce.objects.filter(article=obj, is_pass=True).exists()
 
 
 class ArticleWriteSerializer(serializers.ModelSerializer):
