@@ -137,7 +137,7 @@ class CommentAPIView(APIView):
 @permission_classes([IsAuthenticated])
 def set_great_comment(request):
     try:
-        commentid = request.data.get("comment", "")
+        commentid = request.data.get("comment", 1)
         user = request.user
 
         object = Comment.objects.filter(id=commentid).first()
@@ -147,10 +147,16 @@ def set_great_comment(request):
 
         if user != object.author:
             raise
-        object.is_great = True
-        object.save()
-        return Response(True, status=status.HTTP_202_ACCEPTED)
-    except:
+        if not object.is_great:
+            object.is_great = True
+            object.save()
+            object.author.coins = object.author.coins + 2
+            object.author.save()
+            return Response(True, status=status.HTTP_202_ACCEPTED)
+        else:
+            raise
+    except Exception as e:
+        print(e)
         return Response(False, status=status.HTTP_400_BAD_REQUEST)
 
 

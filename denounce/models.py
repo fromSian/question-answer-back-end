@@ -11,3 +11,6 @@ class Denounce(models.Model):
     is_pass = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.article.title + '--' + self.user.username + '--' + str(self.is_pass)

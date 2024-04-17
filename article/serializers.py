@@ -31,11 +31,14 @@ class ArticleWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
+        user=self.context['request'].user
         article = Article(
-            author=self.context['request'].user,
+            author=user,
             **validated_data
         )
         article.save()
+        user.coins = user.coins - 2
+        user.save()
         article.tags.add(*tags)
         return article
     

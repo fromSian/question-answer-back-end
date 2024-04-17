@@ -8,9 +8,6 @@ from django.utils.text import slugify
 from django.urls import reverse
 
 
-User = get_user_model()
-
-
 
 class Article(models.Model):
     author =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -28,3 +25,6 @@ class Article(models.Model):
         
     def as_markdown(self) -> str:
         return markdown.markdown(self.content, safe_mode="escape", extensions=["extra"])
+    
+    def __str__(self):
+        return self.title
