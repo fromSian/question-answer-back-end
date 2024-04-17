@@ -121,3 +121,35 @@ class CommentAPIView(APIView):
             return Response(True, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(False, status=status.HTTP_400_BAD_REQUEST)
+        
+@swagger_auto_schema(
+    method="POST",
+    operation_description="设置优秀作答",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=["comment"],
+        properties={
+            "comment": openapi.Schema(type=openapi.TYPE_INTEGER, description="评论id"),
+        },
+    ),
+)
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def set_great_comment(request):
+    try:
+        commentid = request.data.get("comment", "")
+        user = request.user
+
+        object = Comment.objects.filter(id=commentid).first()
+
+        if not object:
+            raise
+
+        if user != object.author:
+            raise
+        object.is_great = True
+        object.save()
+        return Response(True, status=status.HTTP_202_ACCEPTED)
+    except:
+        return Response(False, status=status.HTTP_400_BAD_REQUEST)
+
