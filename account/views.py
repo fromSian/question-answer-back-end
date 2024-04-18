@@ -43,12 +43,21 @@ def account_registration(request):
         user_data = request.data
 
         serializer = UserSerializer(data=user_data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(True, status=status.HTTP_201_CREATED)
 
-    except Exception:
-        return Response(False, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"status": True, "message": "注册成功"}, status=status.HTTP_201_CREATED
+            )
+        else:
+            return Response(
+                {"status": False, "message": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+    except Exception as e:
+        return Response(
+            {"status": False, "message": "注册失败"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @swagger_auto_schema(
@@ -75,7 +84,11 @@ def account_registration(request):
 def account_login(request):
     try:
         user_data = request.data
-        user = authenticate(username=user_data["username"], password=user_data["password"])
+        user = authenticate(
+            username=user_data["username"], password=user_data["password"]
+        )
+        if not user:
+            raise Exception("用户名或密码错误")
         serializer = UserReaderializer(user)
         jwt_token = RefreshToken.for_user(user)
         serializer_data = serializer.data
@@ -83,10 +96,16 @@ def account_login(request):
         response_data = {
             "user": serializer_data,
         }
-        return Response(response_data, status=status.HTTP_202_ACCEPTED)
+        return Response(
+            {"status": True, "message": "登录成功", **response_data},
+            status=status.HTTP_202_ACCEPTED,
+        )
 
-    except Exception:
-        return Response(False, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(
+            {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
+        )
+
 
 @swagger_auto_schema(
     method="GET",
@@ -112,9 +131,14 @@ def user_info(request):
         print(user)
         if user:
             serializer = UserReaderializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                {"status": True, "message": "用户信息获取成功", **serializer.data},
+                status=status.HTTP_200_OK,
+            )
         else:
-            raise
+            raise Exception("no user")
 
-    except Exception:
-        return Response(False, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(
+            {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
+        )

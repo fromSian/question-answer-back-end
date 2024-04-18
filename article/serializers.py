@@ -59,3 +59,8 @@ class ArticleWriteSerializer(serializers.ModelSerializer):
         
         return instance
     
+
+class TagSerializer(serializers.Serializer):
+    tags = serializers.ListField(
+        child=serializers.CharField()
+    )
