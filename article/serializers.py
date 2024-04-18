@@ -29,15 +29,21 @@ class ArticleWriteSerializer(serializers.ModelSerializer):
         model = Article
         fields = ('title', 'content', 'expired', 'tags')
 
+
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         user=self.context['request'].user
+        if not user.times and user.coins < 2:
+            raise serializers.ValidationError("没有金币发表提问")
         article = Article(
             author=user,
             **validated_data
         )
         article.save()
-        user.coins = user.coins - 2
+        if user.times:
+            user.times = user.times - 1
+        else:
+            user.coins = user.coins - 2
         user.save()
         article.tags.add(*tags)
         return article

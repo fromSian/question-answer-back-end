@@ -17,7 +17,7 @@ class Article(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now_add=True)
 
-    expired = models.DateTimeField()
+    expired = models.DateTimeField(blank=True, null=True)
     
     tags = TaggableManager(blank=True)
     views =  models.PositiveIntegerField(blank=False, default=0)

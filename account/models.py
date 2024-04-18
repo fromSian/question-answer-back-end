@@ -13,7 +13,8 @@ class User(AbstractUser):
     first_name = None
     last_name = None
 
-    coins =  models.PositiveIntegerField(blank=False, default=2)
+    coins =  models.PositiveIntegerField(blank=False, default=0)
+    times = models.PositiveIntegerField(blank=False, default=2)
 
     REQUIRED_FIELDS = []
 
