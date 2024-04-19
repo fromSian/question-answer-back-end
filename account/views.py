@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status, views, viewsets
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly,AllowAny
 
 from .models import User
 from .serializers import UserSerializer, UserReaderializer
@@ -36,6 +36,11 @@ from drf_yasg import openapi
 @api_view(
     [
         "POST",
+    ]
+)
+@permission_classes(
+    [
+        AllowAny,
     ]
 )
 def account_registration(request):
@@ -81,6 +86,11 @@ def account_registration(request):
         "POST",
     ]
 )
+@permission_classes(
+    [
+        AllowAny,
+    ]
+)
 def account_login(request):
     try:
         user_data = request.data
@@ -93,11 +103,8 @@ def account_login(request):
         jwt_token = RefreshToken.for_user(user)
         serializer_data = serializer.data
         serializer_data["token"] = str(jwt_token.access_token)
-        response_data = {
-            "user": serializer_data,
-        }
         return Response(
-            {"status": True, "message": "登录成功", **response_data},
+            {"status": True, "message": "登录成功", **serializer_data},
             status=status.HTTP_202_ACCEPTED,
         )
 
@@ -128,7 +135,6 @@ def account_login(request):
 def user_info(request):
     try:
         user = request.user
-        print(user)
         if user:
             serializer = UserReaderializer(user)
             return Response(
