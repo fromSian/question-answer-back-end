@@ -4,7 +4,8 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.mixins import ListModelMixin
+from comment.filters import CommentFilter
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, DestroyModelMixin
 from rest_framework.views import APIView
 from .models import Article
 from .serializers import ArticleReadSerializer, ArticleWriteSerializer, TagSerializer
@@ -69,13 +70,57 @@ class ArticleViewSet(ModelViewSet):
             return ArticleWriteSerializer
         else:
             return ArticleReadSerializer
+    
+    @swagger_auto_schema(
+        operation_description="获取我的文章",
+    )
+    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated], filterset_class=None)
+    def mine(self, request):
+        user = request.user
+        queryset = Article.objects.filter(author=user)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(True)
+    
+
+class CommentViewSet(GenericViewSet, ListModelMixin, CreateModelMixin, DestroyModelMixin):
+    queryset = Comment.objects.all()
+    serializer_class = CommentReadSerializer
+    filterset_class = CommentFilter
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CommentWriteSerializer
+        else:
+            return CommentReadSerializer
+
+    @swagger_auto_schema(
+        operation_description="获取我的评论",
+    )
+    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated], filterset_class=None)
+    def mine(self, request):
+        user = request.user
+        queryset = Comment.objects.filter(author=user)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(True)
+    
+
 
 
 class CommentAPIView(APIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     @swagger_auto_schema(
-        operation_description="获取评论",
+        operation_description="获取文章评论",
         manual_parameters=[
             openapi.Parameter(
                 name="article",
@@ -154,7 +199,6 @@ class CommentAPIView(APIView):
             return Response(
                 {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
             )
-
 
 @swagger_auto_schema(
     method="POST",
@@ -246,4 +290,4 @@ class TagView(GenericViewSet, ListModelMixin):
             return Response({"status": True, "message": "获取标签成功", **serializer.data})
             
         except Exception:
-            return Response({"status": False, "message": "获取标签失败"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"status": False, "message": "获取标签失败"}, status=status.HTTP_400_BAD_REQUEST)

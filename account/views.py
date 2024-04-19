@@ -8,7 +8,11 @@ from rest_framework.response import Response
 from rest_framework import status, views, viewsets
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly,AllowAny
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+    AllowAny,
+)
 
 from .models import User
 from .serializers import UserSerializer, UserReaderializer
@@ -148,3 +152,29 @@ def user_info(request):
         return Response(
             {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
         )
+
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
+
+def set_times_monthly():
+    print("set times")
+    User.objects.update(times=2)
+
+
+scheduler = BackgroundScheduler()
+try:
+    scheduler.add_job(
+        set_times_monthly,
+        "cron",
+        day=1,
+        hour=0,
+        minute=0,
+        id="set_times_monthly",
+        replace_existing=True,
+        timezone="Asia/Shanghai",
+    )
+    scheduler.start()
+except Exception as e:
+    print(e)
+    scheduler.shutdown()
