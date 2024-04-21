@@ -8,19 +8,24 @@ from account.serializers import UserReaderializer
 
 from .models import Article
 from denounce.models import Denounce
+from comment.models import Comment
 
 class ArticleReadSerializer(serializers.ModelSerializer):
     author = UserReaderializer()
     tag_list = TagListSerializerField(source='tags', required=False)
     denounce = serializers.SerializerMethodField()
+    comment_counts = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
-        fields = ('id', 'author', 'title', 'content', 'created', 'updated', 'expired', 'tag_list', 'views', 'denounce')
-        read_only_fields = ('id', 'author', 'created', 'updated', 'views', 'denounce')
+        fields = ('id', 'author', 'title', 'content', 'created', 'updated', 'expired', 'tag_list', 'views', 'denounce', 'comment_counts')
+        read_only_fields = ('id', 'author', 'created', 'updated', 'views', 'denounce', 'comment_counts')
 
     def get_denounce(self, obj):
         return Denounce.objects.filter(article=obj, is_pass=True).exists()
+    
+    def get_comment_counts(self, obj):
+        return Comment.objects.filter(article=obj).count()
 
 
 class ArticleWriteSerializer(serializers.ModelSerializer):
