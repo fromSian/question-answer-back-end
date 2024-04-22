@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.db import models
 
 from django.db.models.signals import post_delete, post_init, post_save

@@ -15,6 +15,15 @@ class CommentReadSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'content', 'is_great', 'created', 'updated')
         read_only_fields = ('id', 'author', 'created', 'updated', 'is_great')
 
+class CommentReadWithArticleSerializer(serializers.ModelSerializer):
+    author = UserReaderializer()
+    article = ArticleReadSerializer()
+    
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'article', 'author', 'content', 'is_great', 'created', 'updated')
+        read_only_fields = ('id', 'author', 'created', 'updated', 'is_great')
 
 class CommentWriteSerializer(serializers.ModelSerializer):
     class Meta:

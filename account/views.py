@@ -64,6 +64,7 @@ def account_registration(request):
                 status=status.HTTP_400_BAD_REQUEST,
             )
     except Exception as e:
+        print(e)
         return Response(
             {"status": False, "message": "注册失败"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -101,7 +102,7 @@ def account_login(request):
         user = authenticate(
             username=user_data["username"], password=user_data["password"]
         )
-        if not user:
+        if not user or not user.groups.values("name").filter(name="普通用户").exists():
             raise Exception("用户名或密码错误")
         serializer = UserReaderializer(user)
         jwt_token = RefreshToken.for_user(user)

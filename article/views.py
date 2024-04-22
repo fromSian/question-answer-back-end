@@ -17,7 +17,7 @@ from rest_framework.permissions import (
 from taggit.serializers import TagListSerializerField, TaggitSerializer
 from rest_framework import status
 from comment.models import Comment
-from comment.serializers import CommentReadSerializer, CommentWriteSerializer
+from comment.serializers import CommentReadSerializer, CommentWriteSerializer, CommentReadWithArticleSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.conf import settings
@@ -95,6 +95,8 @@ class CommentViewSet(GenericViewSet, ListModelMixin, CreateModelMixin, DestroyMo
     def get_serializer_class(self):
         if self.action == "create":
             return CommentWriteSerializer
+        elif self.action == 'mine':
+            return CommentReadWithArticleSerializer
         else:
             return CommentReadSerializer
 
