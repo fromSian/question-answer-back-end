@@ -28,6 +28,7 @@ from taggit.models import Tag
 from .filters import ArticleFilter
 from denounce.serializers import DenounceWriteSerializer,DenounceReadWithArticleSerializer
 
+from datetime import datetime
 @swagger_auto_schema(
     method="POST",
     operation_description="浏览量+1",
@@ -203,6 +204,8 @@ class CommentAPIView(APIView):
             article = Article.objects.filter(id=articleid).first()
             if not article:
                 raise Exception("文章不存在")
+            if article.expired < datetime.now():
+                raise Exception("不在文章评论有效期内")
             author = request.user
             content = request.data.get("content", "")
             comment = Comment.objects.create(
