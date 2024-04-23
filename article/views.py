@@ -351,8 +351,8 @@ class DenounceViewSet(GenericViewSet, CreateModelMixin):
     @action(methods=['GET'], detail=False)
     def mine(self, request):
         user = request.user
-        # queryset = Denounce.objects.filter(user=user)
-        queryset = Denounce.objects.all()
+        queryset = Denounce.objects.filter(user=user)
+        # queryset = Denounce.objects.all()
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
