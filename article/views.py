@@ -64,6 +64,20 @@ class ArticleViewSet(ModelViewSet):
 
     filterset_class = ArticleFilter
 
+    def is_denounce(self, n):
+        return not n['denounce']
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(filter(self.is_denounce,serializer.data))
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(filter(self.is_denounce, serializer.data))
+
 
     def get_serializer_class(self):
         if self.action == "create":

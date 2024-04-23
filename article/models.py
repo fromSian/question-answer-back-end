@@ -8,7 +8,6 @@ from django.utils.text import slugify
 from django.urls import reverse
 
 
-
 class Article(models.Model):
     author =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=150, unique=True)
