@@ -1,5 +1,3 @@
-
-
 """
 URL configuration for config project.
 
@@ -16,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -27,23 +26,24 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Real World API",
-        default_version='v1',
-        description="Real World API Documentation",
+        title="Question & Answer API",
+        default_version="v1",
+        description="Question & Answer Documentation",
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
 
-api_prefix = ''
+api_prefix = ""
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-redoc'),
-    path('user/', include('account.urls')),
-    path('', include('article.urls')),
+    path("admin/", admin.site.urls),
+    path(
+        "swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-redoc"
+    ),
+    path("user/", include("account.urls")),
+    path("", include("article.urls")),
 ]
 
-if settings.DEBUG:  
-    urlpatterns += static(settings.MEDIA_URL,  
-                          document_root=settings.MEDIA_ROOT) 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,6 +2,10 @@ from rest_framework import serializers
 from .models import User
 from django.contrib.auth.models import Group
 
+"""
+用户注册序列化器
+"""
+
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -29,6 +33,11 @@ class UserSerializer(serializers.ModelSerializer):
                 setattr(instance, key, value)
         instance.save()
         return instance
+
+
+"""
+ 用户信息序列化器
+"""
 
 
 class UserReaderializer(serializers.ModelSerializer):

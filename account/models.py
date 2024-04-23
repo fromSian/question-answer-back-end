@@ -1,3 +1,7 @@
+"""
+用户model
+"""
+
 from django.db import models
 
 # Create your models here.
@@ -12,7 +16,6 @@ from denounce.models import Denounce
 
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **other_fields):
-        print(username, password)
         user = User(username=username, **other_fields)
 
         if password:
@@ -41,8 +44,10 @@ class User(AbstractUser):
     first_name = None
     last_name = None
 
-    coins = models.PositiveIntegerField(blank=False, default=0)
-    times = models.PositiveIntegerField(blank=False, default=2)
+    coins = models.PositiveIntegerField(blank=False, default=0, verbose_name="金币数")
+    times = models.PositiveIntegerField(
+        blank=False, default=2, verbose_name="可免费发布提问次数"
+    )
 
     REQUIRED_FIELDS = []
 

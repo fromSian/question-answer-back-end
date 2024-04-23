@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "taggit",
-     "django_apscheduler",
+    "django_apscheduler",
     "django_filters",
     "drf_yasg",
     "account",
@@ -85,10 +85,26 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "djongo",
+        "NAME": "followpromptpia",
+        "ENFORCE_SCHEMA": False,
+        "CLIENT": {
+            "host": "mongodb+srv://fromsian:aMH3IxDdwUVYtpg4@cluster0.yvbadfb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+            "port": 27017,
+            "username": "fromsian",
+            "password": "aMH3IxDdwUVYtpg4",
+            "authSource": "followpromptpia",
+            "authMechanism": "SCRAM-SHA-1",
+        },
     }
 }
 
@@ -121,7 +137,7 @@ TIME_ZONE = "Asia/Shanghai"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -141,6 +157,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PAGINATION_CLASS": "account.pagination.CustomPagination",
+    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
 }
 
 # JWT token settings
@@ -154,9 +171,6 @@ SIMPLE_JWT = {
 
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {
-        #   'Basic': {
-        #         'type': 'basic'
-        #   },
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
     }
 }
