@@ -22,7 +22,7 @@ class ArticleReadSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'author', 'created', 'updated', 'views', 'denounce', 'comment_counts')
 
     def get_denounce(self, obj):
-        return Denounce.objects.filter(article=obj, is_pass=True).exists()
+        return Denounce.objects.filter(article=obj, denounce_status=1).exists()
     
     def get_comment_counts(self, obj):
         return Comment.objects.filter(article=obj).count()

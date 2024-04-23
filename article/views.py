@@ -26,6 +26,7 @@ from account.pagination import CustomPagination
 from denounce.models import Denounce
 from taggit.models import Tag
 from .filters import ArticleFilter
+from denounce.serializers import DenounceWriteSerializer,DenounceReadWithArticleSerializer
 
 @swagger_auto_schema(
     method="POST",
@@ -263,35 +264,100 @@ def set_great_comment(request):
         )
 
 
-@swagger_auto_schema(
-    method="POST",
-    operation_description="举报文章",
-    request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        required=["article"],
-        properties={
-            "article": openapi.Schema(type=openapi.TYPE_INTEGER, description="文章id"),
-        },
-    ),
-)
-@permission_classes([IsAuthenticated])
-@api_view(["POST"])
-def denounce(request):
-    try:
-        articleid = request.data.get("article", "")
+# @swagger_auto_schema(
+#     method="POST",
+#     operation_description="举报文章",
+#     request_body=openapi.Schema(
+#         type=openapi.TYPE_OBJECT,
+#         required=["article"],
+#         properties={
+#             "article": openapi.Schema(type=openapi.TYPE_INTEGER, description="文章id"),
+#         },
+#     ),
+# )
+# @permission_classes([IsAuthenticated])
+# @api_view(["POST"])
+# def denounce(request):
+#     try:
+#         articleid = request.data.get("article", "")
+#         user = request.user
+#         article = Article.objects.filter(id=articleid).first()
+#         if not article:
+#             raise Exception("文章不存在")
+#         d = Denounce.objects.create(article=article, user=user)
+#         return Response(
+#             {"status": True, "message": "举报成功，待审核"},
+#             status=status.HTTP_201_CREATED,
+#         )
+#     except Exception as e:
+#         return Response(
+#             {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
+#         )
+
+
+# @swagger_auto_schema(
+#     method="GET",
+#     operation_description="我的举报",
+# )
+# @permission_classes([AllowAny])
+# @api_view(["GET"])
+# def denounce_mine(request):
+#     try:
+#         user = request.user
+#         # queryset = Denounce.objects.filter(author=user)
+#         queryset = Denounce.objects.all()
+#         paginator = CustomPagination()
+#         page = paginator.paginate_queryset(
+#             queryset=queryset, request=request
+#         )
+
+#         if page is not None:
+#             serializer = DenounceReadWithArticleSerializer(
+#                 page, many=True, context={"request": request}
+#             )
+
+#             return paginator.get_paginated_response(serializer.data)
+
+#         serializer = DenounceReadWithArticleSerializer(
+#             queryset, many=True, context={"request": request}
+#         )
+
+#         return Response(
+#             {"status": True, "message": "查询我的举报成功", **serializer.data},
+#             status=status.HTTP_200_OK,
+#         )
+#     except Exception as e:
+#         return Response(
+#             {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
+#         )
+
+
+class DenounceViewSet(GenericViewSet, CreateModelMixin):
+    queryset = Denounce.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return DenounceWriteSerializer
+        elif self.action == 'mine':
+            return DenounceReadWithArticleSerializer
+
+    @swagger_auto_schema(
+        operation_description="获取我的举报",
+    )
+    @action(methods=['GET'], detail=False)
+    def mine(self, request):
         user = request.user
-        article = Article.objects.filter(id=articleid).first()
-        if not article:
-            raise Exception("文章不存在")
-        d = Denounce.objects.create(article=article, user=user)
-        return Response(
-            {"status": True, "message": "举报成功，待审核"},
-            status=status.HTTP_201_CREATED,
-        )
-    except Exception as e:
-        return Response(
-            {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
-        )
+        # queryset = Denounce.objects.filter(user=user)
+        queryset = Denounce.objects.all()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(True)
+    
 
 
 class TagView(GenericViewSet, ListModelMixin):

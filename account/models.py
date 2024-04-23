@@ -58,8 +58,8 @@ class User(AbstractUser):
 
 
 @receiver(post_save, sender=Denounce)
-def low_coins(sender, instance, **kwargs):
-    if instance.is_pass:
+def add_coins(sender, instance, **kwargs):
+    if instance.denounce_status == 1:
         user = instance.user
         user.coins = user.coins + 2
         user.save()
