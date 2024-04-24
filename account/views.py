@@ -159,7 +159,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 
 def set_times_monthly():
-    print("set times")
     User.objects.update(times=2)
 
 

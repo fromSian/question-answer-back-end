@@ -12,7 +12,6 @@ from denounce.models import Denounce
 
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **other_fields):
-        print(username, password)
         user = User(username=username, **other_fields)
 
         if password:
