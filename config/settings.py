@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "taggit",
-     "django_apscheduler",
+    "django_apscheduler",
     "django_filters",
     "drf_yasg",
     "account",
@@ -121,7 +121,7 @@ TIME_ZONE = "Asia/Shanghai"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -141,6 +141,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_PAGINATION_CLASS": "account.pagination.CustomPagination",
+    "DATETIME_FORMAT": "%Y-%m-%d %H:%M:%S",
 }
 
 # JWT token settings
