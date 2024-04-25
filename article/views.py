@@ -17,7 +17,11 @@ from rest_framework.permissions import (
 from taggit.serializers import TagListSerializerField, TaggitSerializer
 from rest_framework import status
 from comment.models import Comment
-from comment.serializers import CommentReadSerializer, CommentWriteSerializer, CommentReadWithArticleSerializer
+from comment.serializers import (
+    CommentReadSerializer,
+    CommentWriteSerializer,
+    CommentReadWithArticleSerializer,
+)
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.conf import settings
@@ -26,9 +30,14 @@ from account.pagination import CustomPagination
 from denounce.models import Denounce
 from taggit.models import Tag
 from .filters import ArticleFilter
-from denounce.serializers import DenounceWriteSerializer,DenounceReadWithArticleSerializer
+from denounce.serializers import (
+    DenounceWriteSerializer,
+    DenounceReadWithArticleSerializer,
+)
 
 from datetime import datetime
+
+
 @swagger_auto_schema(
     method="POST",
     operation_description="浏览量+1",
@@ -67,7 +76,7 @@ class ArticleViewSet(ModelViewSet):
     filterset_class = ArticleFilter
 
     def is_denounce(self, n):
-        return not n['denounce']
+        return not n["denounce"]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -75,22 +84,28 @@ class ArticleViewSet(ModelViewSet):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(filter(self.is_denounce,serializer.data))
+            return self.get_paginated_response(
+                filter(self.is_denounce, serializer.data)
+            )
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(filter(self.is_denounce, serializer.data))
-
 
     def get_serializer_class(self):
         if self.action == "create":
             return ArticleWriteSerializer
         else:
             return ArticleReadSerializer
-    
+
     @swagger_auto_schema(
         operation_description="获取我的文章",
     )
-    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated], filterset_class=None)
+    @action(
+        methods=["GET"],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        filterset_class=None,
+    )
     def mine(self, request):
         user = request.user
         queryset = Article.objects.filter(author=user)
@@ -101,9 +116,11 @@ class ArticleViewSet(ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(True)
-    
 
-class CommentViewSet(GenericViewSet, ListModelMixin, CreateModelMixin, DestroyModelMixin):
+
+class CommentViewSet(
+    GenericViewSet, ListModelMixin, CreateModelMixin, DestroyModelMixin
+):
     queryset = Comment.objects.all()
     serializer_class = CommentReadSerializer
     filterset_class = CommentFilter
@@ -111,7 +128,7 @@ class CommentViewSet(GenericViewSet, ListModelMixin, CreateModelMixin, DestroyMo
     def get_serializer_class(self):
         if self.action == "create":
             return CommentWriteSerializer
-        elif self.action == 'mine':
+        elif self.action == "mine":
             return CommentReadWithArticleSerializer
         else:
             return CommentReadSerializer
@@ -119,7 +136,12 @@ class CommentViewSet(GenericViewSet, ListModelMixin, CreateModelMixin, DestroyMo
     @swagger_auto_schema(
         operation_description="获取我的评论",
     )
-    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated], filterset_class=None)
+    @action(
+        methods=["GET"],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        filterset_class=None,
+    )
     def mine(self, request):
         user = request.user
         queryset = Comment.objects.filter(author=user)
@@ -130,8 +152,57 @@ class CommentViewSet(GenericViewSet, ListModelMixin, CreateModelMixin, DestroyMo
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(True)
-    
 
+    @swagger_auto_schema(
+        operation_description="设置/取消优秀作答",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["comment"],
+            properties={
+                "comment": openapi.Schema(
+                    type=openapi.TYPE_INTEGER, description="评论id"
+                ),
+            },
+        ),
+    )
+    @action(
+        methods=["POST"],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        filterset_class=None,
+    )
+    def great(self, request):
+        try:
+            commentid = request.data.get("comment", 1)
+            user = request.user
+
+            object = Comment.objects.filter(id=commentid).first()
+
+            if not object:
+                raise Exception("评论不存在")
+
+            if user != object.author:
+                raise Exception("该用户没有权限设置此评论为优秀作答")
+            if not object.is_great:
+                object.is_great = True
+                object.save()
+                object.author.coins = object.author.coins + 2
+                object.author.save()
+                return Response(
+                    {"status": True, "message": "设置优秀作答成功"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
+            else:
+                object.is_great = False
+                object.save()
+                return Response(
+                    {"status": True, "message": "取消优秀作答成功"},
+                    status=status.HTTP_202_ACCEPTED,
+                )
+        except Exception as e:
+            return Response(
+                {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class CommentAPIView(APIView):
@@ -220,6 +291,7 @@ class CommentAPIView(APIView):
                 {"status": False, "message": str(e)}, status=status.HTTP_400_BAD_REQUEST
             )
 
+
 @swagger_auto_schema(
     method="POST",
     operation_description="设置/取消优秀作答",
@@ -231,8 +303,8 @@ class CommentAPIView(APIView):
         },
     ),
 )
-@api_view(["POST"])
 @permission_classes([IsAuthenticated])
+@api_view(["POST"])
 def set_great_comment(request):
     try:
         commentid = request.data.get("comment", 1)
@@ -342,13 +414,13 @@ class DenounceViewSet(GenericViewSet, CreateModelMixin):
     def get_serializer_class(self):
         if self.action == "create":
             return DenounceWriteSerializer
-        elif self.action == 'mine':
+        elif self.action == "mine":
             return DenounceReadWithArticleSerializer
 
     @swagger_auto_schema(
         operation_description="获取我的举报",
     )
-    @action(methods=['GET'], detail=False)
+    @action(methods=["GET"], detail=False)
     def mine(self, request):
         user = request.user
         queryset = Denounce.objects.filter(user=user)
@@ -360,7 +432,6 @@ class DenounceViewSet(GenericViewSet, CreateModelMixin):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(True)
-    
 
 
 class TagView(GenericViewSet, ListModelMixin):
@@ -371,8 +442,13 @@ class TagView(GenericViewSet, ListModelMixin):
         try:
             queryset = self.get_queryset()
             tags = [element.name for element in queryset]
-            serializer = self.get_serializer({ 'tags': tags })
-            return Response({"status": True, "message": "获取标签成功", **serializer.data})
-            
+            serializer = self.get_serializer({"tags": tags})
+            return Response(
+                {"status": True, "message": "获取标签成功", **serializer.data}
+            )
+
         except Exception:
-            return Response({"status": False, "message": "获取标签失败"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"status": False, "message": "获取标签失败"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

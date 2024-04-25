@@ -35,7 +35,7 @@ class CommentWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         article = validated_data.get('article')
-        if article.expired and article.expired < datetime.now(pytz.timezone('Asia/Shanghai')):
+        if article.expired and article.expired < datetime.now():
                 raise serializers.ValidationError("不在文章评论有效期内")
         comment = Comment(
             author=self.context['request'].user,
