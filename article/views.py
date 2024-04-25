@@ -225,9 +225,7 @@ class CommentAPIView(APIView):
             article = Article.objects.filter(id=articleid).first()
             if not article:
                 raise Exception("文章不存在")
-            comment_queryset = Comment.objects.filter(article=article).order_by(
-                "is_great"
-            )
+            comment_queryset = Comment.objects.filter(article=article)
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(

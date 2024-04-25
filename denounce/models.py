@@ -18,4 +18,4 @@ class Denounce(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.article.title + '--' + self.user.username + '--' + str(self.denounce_status)
+        return self.article.title + '--' + self.user.username
