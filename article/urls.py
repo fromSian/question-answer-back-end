@@ -12,7 +12,4 @@ router.register('tags', views.TagView)
 urlpatterns = [
     path('', include(router.urls)),
     path('views/', views.add_view_count, name='add-view'),
-    # path('comment/great/', views.set_great_comment, name='set_great_comment'),
-    # path('denounce/', views.denounce, name='denounce'),
-    # path('denounce/mine', views.denounce_mine, name='denounce-mine'),
 ]
