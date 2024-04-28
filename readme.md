@@ -1,3 +1,16 @@
+Django 5.0 支持 Python 3.10、3.11 和 3.12
+
+# 创建虚拟环境和安装依赖
+根据你的操作系统选择合适的方式创建
+
+eg:
+```bash
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
 # 启动项目
 
 ```bash
