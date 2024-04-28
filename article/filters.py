@@ -4,6 +4,9 @@ from .models import Article
 
 
 class ArticleFilter(django_filters.FilterSet):
+    '''
+    提问 筛选 排序设置
+    '''
     tags = django_filters.CharFilter(method='tags_filter')
     author = django_filters.CharFilter(method='author_filter')
     sort = django_filters.OrderingFilter(fields=('views', 'author', 'created', 'updated', 'comment'))

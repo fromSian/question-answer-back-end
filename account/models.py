@@ -1,3 +1,7 @@
+"""
+用户model
+"""
+
 from django.db import models
 
 # Create your models here.
@@ -40,8 +44,10 @@ class User(AbstractUser):
     first_name = None
     last_name = None
 
-    coins = models.PositiveIntegerField(blank=False, default=0, verbose_name='金币数')
-    times = models.PositiveIntegerField(blank=False, default=2, verbose_name='可免费发布提问次数')
+    coins = models.PositiveIntegerField(blank=False, default=0, verbose_name="金币数")
+    times = models.PositiveIntegerField(
+        blank=False, default=2, verbose_name="可免费发布提问次数"
+    )
 
     REQUIRED_FIELDS = []
 
@@ -61,5 +67,4 @@ def add_coins(sender, instance, **kwargs):
     if instance.denounce_status == 1:
         user = instance.user
         user.coins = user.coins + 2
-        print(user.coins)
         user.save()

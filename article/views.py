@@ -52,6 +52,9 @@ from datetime import datetime
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def add_view_count(request):
+    """
+    问题浏览量+1
+    """
     try:
         articleid = request.data.get("article", "")
         object = Article.objects.filter(id=articleid).first()
@@ -69,6 +72,11 @@ def add_view_count(request):
 
 
 class ArticleViewSet(ModelViewSet):
+    """
+    问题视图集
+    包括增删改查查+我的问题
+    """
+
     queryset = Article.objects.all().order_by("-views")
 
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -92,7 +100,11 @@ class ArticleViewSet(ModelViewSet):
         return Response(filter(self.is_denounce, serializer.data))
 
     def get_serializer_class(self):
-        if self.action == "create":
+        if (
+            self.action == "create"
+            or self.action == "update"
+            or self.action == "partial_update"
+        ):
             return ArticleWriteSerializer
         else:
             return ArticleReadSerializer
@@ -107,6 +119,9 @@ class ArticleViewSet(ModelViewSet):
         filterset_class=None,
     )
     def mine(self, request):
+        """
+        查询我的问题
+        """
         user = request.user
         queryset = Article.objects.filter(author=user)
         page = self.paginate_queryset(queryset)
@@ -121,12 +136,21 @@ class ArticleViewSet(ModelViewSet):
 class CommentViewSet(
     GenericViewSet, ListModelMixin, CreateModelMixin, DestroyModelMixin
 ):
+    """
+    回答视图集
+    包括增删改查+我的回答
+    """
+
     queryset = Comment.objects.all()
     serializer_class = CommentReadSerializer
     filterset_class = CommentFilter
 
     def get_serializer_class(self):
-        if self.action == "create":
+        if (
+            self.action == "create"
+            or self.action == "update"
+            or self.action == "partial_update"
+        ):
             return CommentWriteSerializer
         elif self.action == "mine":
             return CommentReadWithArticleSerializer
@@ -143,6 +167,9 @@ class CommentViewSet(
         filterset_class=None,
     )
     def mine(self, request):
+        """
+        查询我的回答
+        """
         user = request.user
         queryset = Comment.objects.filter(author=user)
         page = self.paginate_queryset(queryset)
@@ -172,6 +199,9 @@ class CommentViewSet(
         filterset_class=None,
     )
     def great(self, request):
+        """
+        设置/取消优秀作答
+        """
         try:
             commentid = request.data.get("comment", 1)
             user = request.user
@@ -206,11 +236,20 @@ class CommentViewSet(
 
 
 class DenounceViewSet(GenericViewSet, CreateModelMixin):
+    """
+    举报视图集
+    包括增+我的举报
+    """
+
     queryset = Denounce.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
-        if self.action == "create":
+        if (
+            self.action == "create"
+            or self.action == "update"
+            or self.action == "partial_update"
+        ):
             return DenounceWriteSerializer
         elif self.action == "mine":
             return DenounceReadWithArticleSerializer
@@ -220,6 +259,9 @@ class DenounceViewSet(GenericViewSet, CreateModelMixin):
     )
     @action(methods=["GET"], detail=False)
     def mine(self, request):
+        """
+        查询我的举报
+        """
         user = request.user
         queryset = Denounce.objects.filter(user=user)
         # queryset = Denounce.objects.all()
@@ -233,6 +275,11 @@ class DenounceViewSet(GenericViewSet, CreateModelMixin):
 
 
 class TagView(GenericViewSet, ListModelMixin):
+    """
+    标签视图集
+    查询所有标签
+    """
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 

@@ -48,6 +48,9 @@ from drf_yasg import openapi
     ]
 )
 def account_registration(request):
+    """
+    用户注册
+    """
     try:
         user_data = request.data
 
@@ -97,6 +100,9 @@ def account_registration(request):
     ]
 )
 def account_login(request):
+    """
+    用户登录
+    """
     try:
         user_data = request.data
         user = authenticate(
@@ -138,6 +144,9 @@ def account_login(request):
     ]
 )
 def user_info(request):
+    """
+    获取用户信息
+    """
     try:
         user = request.user
         if user:
@@ -157,11 +166,18 @@ def user_info(request):
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+"""
+每月设置免费提问次数两次
+"""
+
 
 def set_times_monthly():
     User.objects.update(times=2)
 
 
+"""
+定时任务
+"""
 scheduler = BackgroundScheduler()
 try:
     scheduler.add_job(

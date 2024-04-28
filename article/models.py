@@ -1,3 +1,6 @@
+'''
+提问model
+'''
 import markdown
 from django.db import models
 from django.conf import settings
