@@ -85,10 +85,26 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "djongo",
+        "NAME": "followpromptpia",
+        "ENFORCE_SCHEMA": False,
+        "CLIENT": {
+            "host": "mongodb+srv://fromsian:aMH3IxDdwUVYtpg4@cluster0.yvbadfb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+            "port": 27017,
+            "username": "fromsian",
+            "password": "aMH3IxDdwUVYtpg4",
+            "authSource": "followpromptpia",
+            "authMechanism": "SCRAM-SHA-1",
+        },
     }
 }
 
